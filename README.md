@@ -2,8 +2,6 @@
 
 Play online: [https://davbachman.github.io/TwistedApples/](https://davbachman.github.io/TwistedApples/)
 
-Calibration helper: [https://davbachman.github.io/TwistedApples/calibrate.html](https://davbachman.github.io/TwistedApples/calibrate.html)
-
 Twisted Apples is an arcade-style catch/avoid game played on a 3D Mobius band.
 
 ## How to Play
