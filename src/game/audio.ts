@@ -261,22 +261,33 @@ export class AudioEngine {
 
     const osc = context.createOscillator();
     const amp = context.createGain();
+    const lfo = context.createOscillator();
+    const lfoGain = context.createGain();
 
+    // Stronger 8-bit buzzer for poison catches.
     osc.type = 'square';
-    osc.frequency.setValueAtTime(210, now);
-    osc.frequency.exponentialRampToValueAtTime(130, now + 0.18);
+    osc.frequency.setValueAtTime(260, now);
+    osc.frequency.exponentialRampToValueAtTime(88, now + 0.26);
+
+    lfo.type = 'square';
+    lfo.frequency.setValueAtTime(34, now);
+    lfoGain.gain.setValueAtTime(0.06, now);
 
     amp.gain.setValueAtTime(0.0001, now);
-    amp.gain.exponentialRampToValueAtTime(0.2, now + 0.015);
-    amp.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+    amp.gain.exponentialRampToValueAtTime(0.24, now + 0.01);
+    amp.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
 
+    lfo.connect(lfoGain);
+    lfoGain.connect(amp.gain);
     osc.connect(amp);
     amp.connect(output);
 
+    lfo.start(now);
     osc.start(now);
-    osc.stop(now + 0.22);
+    lfo.stop(now + 0.3);
+    osc.stop(now + 0.3);
 
-    this.playNoise(0.12, 0.08);
+    this.playNoise(0.14, 0.12);
   }
 
   private playMissOk(): void {
@@ -312,27 +323,43 @@ export class AudioEngine {
   private playGameOver(): void {
     const context = this.ensureContext();
     const now = context.currentTime;
+    const output = this.masterGain;
+    if (!output) {
+      return;
+    }
 
-    const notes = [62, 57, 53, 50];
+    // Main game-over down-sweep.
+    const sweepOsc = context.createOscillator();
+    const sweepAmp = context.createGain();
+    sweepOsc.type = 'sawtooth';
+    sweepOsc.frequency.setValueAtTime(360, now);
+    sweepOsc.frequency.exponentialRampToValueAtTime(72, now + 0.58);
+    sweepAmp.gain.setValueAtTime(0.0001, now);
+    sweepAmp.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
+    sweepAmp.gain.exponentialRampToValueAtTime(0.0001, now + 0.62);
+    sweepOsc.connect(sweepAmp);
+    sweepAmp.connect(output);
+    sweepOsc.start(now);
+    sweepOsc.stop(now + 0.64);
+
+    // Short low pulses after the sweep for an unmistakable ending cue.
+    const notes = [55, 50, 46];
     notes.forEach((note, index) => {
-      const delay = index * 0.13;
+      const delay = 0.24 + index * 0.11;
       const osc = context.createOscillator();
       const amp = context.createGain();
-      const output = this.masterGain;
-      if (!output) {
-        return;
-      }
-
       osc.type = 'square';
       osc.frequency.setValueAtTime(midiToHz(note), now + delay);
       amp.gain.setValueAtTime(0.0001, now + delay);
-      amp.gain.exponentialRampToValueAtTime(0.14, now + delay + 0.01);
-      amp.gain.exponentialRampToValueAtTime(0.0001, now + delay + 0.12);
-
+      amp.gain.exponentialRampToValueAtTime(0.12, now + delay + 0.01);
+      amp.gain.exponentialRampToValueAtTime(0.0001, now + delay + 0.1);
       osc.connect(amp);
       amp.connect(output);
       osc.start(now + delay);
-      osc.stop(now + delay + 0.14);
+      osc.stop(now + delay + 0.12);
     });
+
+    this.playNoise(0.08, 0.1);
+    window.setTimeout(() => this.playNoise(0.1, 0.08), 420);
   }
 }
