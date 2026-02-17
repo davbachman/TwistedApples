@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Twisted Apples Calibration</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
+
+      :root {
+        --bg: #110b05;
+        --panel: rgba(17, 11, 6, 0.9);
+        --line: #f9be7a;
+        --text: #f7ebcf;
+        --accent: #ff9b4f;
+        --muted: #c8b79d;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      body {
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Silkscreen', monospace;
+      }
+
+      #calibrate-canvas {
+        width: 100vw;
+        height: 100vh;
+        display: block;
+      }
+
+      #panel {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        width: min(410px, calc(100vw - 24px));
+        max-height: calc(100vh - 24px);
+        overflow: auto;
+        padding: 12px;
+        border: 2px solid var(--line);
+        background: var(--panel);
+        backdrop-filter: blur(4px);
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 18px;
+        color: var(--accent);
+      }
+
+      .hint {
+        margin: 4px 0 10px;
+        font-size: 11px;
+        line-height: 1.45;
+        color: var(--muted);
+      }
+
+      #param-list {
+        display: grid;
+        gap: 6px;
+      }
+
+      .param-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid rgba(249, 190, 122, 0.65);
+        background: rgba(35, 20, 9, 0.92);
+        padding: 4px;
+      }
+
+      .param-row.active {
+        border-color: #ffd7ac;
+        box-shadow: inset 0 0 0 1px rgba(255, 215, 172, 0.6);
+        background: rgba(59, 34, 17, 0.95);
+      }
+
+      .param-main {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 11px;
+        padding: 4px;
+        cursor: pointer;
+      }
+
+      .param-main:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .param-step {
+        width: 28px;
+        min-width: 28px;
+        height: 24px;
+        border: 1px solid rgba(249, 190, 122, 0.8);
+        background: rgba(50, 28, 12, 0.95);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 12px;
+        line-height: 1;
+        padding: 0;
+        cursor: pointer;
+      }
+
+      .param-step:hover {
+        background: rgba(74, 43, 20, 0.95);
+      }
+
+      .param-label {
+        color: var(--muted);
+      }
+
+      .param-value {
+        color: var(--text);
+      }
+
+      .seed-row {
+        margin-top: 10px;
+        font-size: 11px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      #copy-row {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      button {
+        border: 1px solid var(--line);
+        background: rgba(44, 25, 11, 0.95);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 11px;
+        padding: 8px 10px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: rgba(66, 39, 16, 0.95);
+      }
+
+      #copy-state {
+        font-size: 11px;
+        color: var(--accent);
+      }
+
+      #export-output {
+        margin-top: 8px;
+        width: 100%;
+        min-height: 180px;
+        border: 1px solid var(--line);
+        background: rgba(12, 8, 4, 0.95);
+        color: var(--text);
+        font-family: 'Silkscreen', monospace;
+        font-size: 10px;
+        line-height: 1.4;
+        padding: 8px;
+        resize: vertical;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="calibrate-canvas" aria-label="Twisted Apples calibration scene"></canvas>
+
+    <section id="panel">
+      <h1>TWISTED APPLES CALIBRATOR</h1>
+      <p class="hint">
+        Use row <strong>- / +</strong>, <strong>ArrowUp/ArrowDown</strong>, or trackpad drag on canvas to tune.
+        <strong>[</strong>/<strong>]</strong> or <strong>ArrowLeft/ArrowRight</strong> switches parameter.
+        <strong>Shift</strong> fine, <strong>Option</strong> coarse.
+        <strong>R</strong> random apples, <strong>0</strong> reset, <strong>S</strong> copy patch.
+      </p>
+
+      <div id="param-list" aria-label="Calibration parameters"></div>
+
+      <div class="seed-row">
+        <span>Seed</span>
+        <span id="seed-value">0</span>
+      </div>
+
+      <div id="copy-row">
+        <button id="copy-button" type="button">Copy Patch</button>
+        <span id="copy-state" aria-live="polite"></span>
+      </div>
+
+      <textarea id="export-output" readonly aria-label="Calibration export"></textarea>
+    </section>
+
+    <script type="module" src="/src/calibrate.ts"></script>
+  </body>
+</html>

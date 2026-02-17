@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Twisted Apples</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
+
+      :root {
+        --bg-night: #130d06;
+        --bg-glow: #3a1f0d;
+        --panel: rgba(23, 14, 8, 0.85);
+        --line: #f9be7a;
+        --text: #f7ebcf;
+        --accent: #ff7a2f;
+        --danger: #f05447;
+        --ok: #8fd973;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        overflow: hidden;
+        font-family: 'Silkscreen', monospace;
+        background: radial-gradient(circle at 30% 20%, var(--bg-glow), var(--bg-night) 62%);
+        color: var(--text);
+      }
+
+      #app {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      #game-canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      #hud {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        min-width: 240px;
+        padding: 10px 12px;
+        border: 2px solid var(--line);
+        background: var(--panel);
+        text-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+        pointer-events: none;
+      }
+
+      #hud.hidden {
+        display: none;
+      }
+
+      #hud .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        margin: 2px 0;
+      }
+
+      .panel {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: radial-gradient(circle at center, rgba(32, 18, 7, 0.6), rgba(6, 4, 2, 0.88));
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 220ms ease;
+      }
+
+      .panel[data-visible='true'] {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .card {
+        max-width: 760px;
+        border: 2px solid var(--line);
+        background: rgba(22, 13, 8, 0.9);
+        padding: 20px;
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+      }
+
+      h1,
+      h2 {
+        margin: 0 0 10px;
+        color: var(--accent);
+        letter-spacing: 1px;
+      }
+
+      p,
+      li {
+        line-height: 1.5;
+        margin: 8px 0;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .cta-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        font-family: inherit;
+        border: 2px solid var(--line);
+        color: var(--text);
+        background: rgba(44, 25, 11, 0.95);
+        padding: 10px 14px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: rgba(66, 39, 16, 0.95);
+      }
+
+      #touch-controls {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 16px;
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        pointer-events: none;
+      }
+
+      #touch-controls button {
+        width: 88px;
+        height: 56px;
+        font-size: 20px;
+        pointer-events: auto;
+        user-select: none;
+        touch-action: manipulation;
+      }
+
+      #touch-controls.hidden {
+        display: none;
+      }
+
+      .ok-text {
+        color: var(--ok);
+      }
+
+      .danger-text {
+        color: var(--danger);
+      }
+
+      @media (max-width: 900px) {
+        .card {
+          max-width: 92vw;
+          padding: 16px;
+        }
+
+        #hud {
+          min-width: 210px;
+          font-size: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game-canvas" aria-label="Twisted Apples game canvas"></canvas>
+
+      <div id="hud" class="hidden" aria-live="polite">
+        <div class="row"><span>Score</span><span id="hud-score">0</span></div>
+        <div class="row"><span>Lives</span><span id="hud-lives">3</span></div>
+        <div class="row"><span>Time</span><span id="hud-time">0.0s</span></div>
+        <div class="row"><span>Tier</span><span id="hud-tier">1</span></div>
+        <div class="row"><span>Audio</span><span id="hud-audio">ON</span></div>
+        <div class="row"><span>Status</span><span id="hud-status">READY</span></div>
+      </div>
+
+      <div id="title-panel" class="panel" data-visible="true">
+        <div class="card">
+          <h1>TWISTED APPLES</h1>
+          <p>
+            Catch apples that read <span class="ok-text">OK</span>. Avoid mirrored poison apples.
+            Missed apples loop around the Möbius band and return flipped.
+          </p>
+          <ul>
+            <li>Move basket: <strong>A/D</strong> or <strong>Arrow Keys</strong></li>
+            <li>Start / Restart: <strong>Enter</strong> or tap <strong>Start</strong></li>
+            <li>Pause: <strong>P</strong></li>
+            <li>Mute: <strong>M</strong></li>
+            <li>Fullscreen: <strong>F</strong></li>
+          </ul>
+          <div class="cta-row">
+            <button id="start-button" type="button">Start Game</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="game-over-panel" class="panel" data-visible="false">
+        <div class="card">
+          <h2>GAME OVER</h2>
+          <p>Final Score: <span id="final-score">0</span></p>
+          <p class="danger-text">Poison apples hurt. Missed apples flip and return.</p>
+          <div class="cta-row">
+            <button id="restart-button" type="button">Play Again</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="touch-controls" class="hidden" aria-label="Touch controls">
+        <button id="touch-left" type="button" aria-label="Move left">◀</button>
+        <button id="touch-right" type="button" aria-label="Move right">▶</button>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
