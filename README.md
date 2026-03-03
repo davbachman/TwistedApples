@@ -2,6 +2,8 @@
 
 Play online: [https://davbachman.github.io/TwistedApples/](https://davbachman.github.io/TwistedApples/)
 
+By David Bachman and GPT 5.3 CODEX
+
 Twisted Apples is an arcade-style catch/avoid game played on a 3D Mobius band.
 
 ## How to Play
