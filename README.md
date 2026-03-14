@@ -2,7 +2,7 @@
 
 Play online: [https://davbachman.github.io/TwistedApples/](https://davbachman.github.io/TwistedApples/)
 
-Created by David Bachman with GPT-5 Codex
+Created by David Bachman with GPT-5.4
 
 To learn more about David Bachman and his work visit https://pzacad.pitzer.edu/~dbachman/ and subscribe to his AI substack *Entropy Bonus* at https://profbachman.substack.com
 
