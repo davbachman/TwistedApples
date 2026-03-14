@@ -4,7 +4,7 @@ Play online: [https://davbachman.github.io/TwistedApples/](https://davbachman.gi
 
 Created by David Bachman with GPT-5 Codex
 
-To learn more about David Bachman and his work visit https://pzacad.pitzer.edu/~dbachman/ and subscribe to his AI substack *Entropy Bonus* at profbachman.substack.com
+To learn more about David Bachman and his work visit https://pzacad.pitzer.edu/~dbachman/ and subscribe to his AI substack *Entropy Bonus* at https://profbachman.substack.com
 
 Twisted Apples is an arcade-style catch/avoid game played on a 3D Mobius band.
 
